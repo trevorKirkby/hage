@@ -1,3 +1,8 @@
+If you are not veiwing this in a wide-ish window, do so, otherwise 
+this page's opening ASCII texts and art will be impossible to see.
+Basically, If you are particularly interested in the graphic, you 
+can open it in a big gedit window. Otherwise, all the pertinent 
+text is already present. It has descriptions, directions, et cetera.
 ____   ____          ____              ___               ___
 |  |   |  |         /  _ \           _/ _ \            _/ _ \
 |  |   |  |        /  / \ \         / _/ \_\          / _/ \_)
