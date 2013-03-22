@@ -1,4 +1,4 @@
-The initial titles and graphics can really only be seen on a wide-ish window, so don't be confused if your only seeing a large amount of slashes and pipe symbols.
+The initial titles and graphics can really only be seen on a wide-ish window that is not being persistently formatted in a github preveiw, so do not be confused if it opens with a mess of pipes, underscores, and slashes.
 ____   ____          ____              ___               ___
 |  |   |  |         /  _ \           _/ _ \            _/ _ \
 |  |   |  |        /  / \ \         / _/ \_\          / _/ \_)
