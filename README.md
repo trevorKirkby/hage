@@ -1,4 +1,3 @@
-The initial titles and graphics can really only be seen on a wide-ish window that is not being persistently formatted in a github preveiw, so do not be confused if it opens with a mess of pipes, underscores, and slashes.
 <pre>
     ____   ____          ____              ___               ___
     |  |   |  |         /  _ \           _/ _ \            _/ _ \
@@ -17,7 +16,7 @@ The initial titles and graphics can really only be seen on a wide-ish window tha
           \  /                           /|
      ______||_____                       ||_______________________________
     |  _________  |        \             ||__                             \_
-    | |         | |       <0))))))))))))[[O__}-----------------------------_>
+    | |         | |       {0))))))))))))[[O__}-----------------------------_>
     | |         | |        /             ||_______________________________/
     | |         | |                      ||
     | |         | |                      \|
