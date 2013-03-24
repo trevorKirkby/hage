@@ -14,7 +14,7 @@ A heightfield represents the elevation relative to sea level on a pixelated sphe
 class Heightfield:
     """
     Reads a height field from a binary file using 16-bit signed integers for each pixel.
-    Raises a heightfield.Error in case of any problems.
+    Raises an Error in case of any problems.
     """
     def __init__(self,filename,npixels):
         # create an empty array to hold the heightfield data as unsigned shorts
@@ -35,6 +35,14 @@ class Heightfield:
         # data in file is in network byte order (big endian) so swap here if necessary
         if sys.byteorder == "little":
             self.data.byteswap()
+        # precompute the conversion from internal (16-bit unsigned) to external (normalized
+        # floating point), i.e., the float constant 2^-16
+        self.conversion = float(1.52587890625e-5)
+    """
+    Returns the height relative to sea level or raises an Error for an invalid pixel.
+    """
+    def getHeight(pixel):
+        return self.conversion*self.data[pixel]
 
 if __name__ == "__main__":
     h = Heightfield("world/data/poodle.hf",4800)
