@@ -83,6 +83,46 @@ class HEALPixMap:
             raise Error('Invalid ring index %d in getPixelForIJ' % i)
         return self.nphisum[i] + (j-1)%self.nphi[i]
     """
+    Returns a triangular mesh...
+    """
+    def getMesh(self):
+        mesh = [ ]
+        # polar caps
+        for iN in range(1,self.nsides):
+            iS = 4*self.nsides-iN
+            # square pole caps
+            if iN == 1:
+                mesh.append((iN,1,iN,2,iN,3))
+                mesh.append((iN,1,iN,3,iN,4))
+                mesh.append((iS,1,iS,2,iS,3))
+                mesh.append((iS,1,iS,3,iS,4))
+            for g in range(4):
+                for j in range(1,iN+1):
+                    j1 = iN*g+j
+                    j2 = j1+g # (iN+1)*g+j
+                    j3 = j2+1  # (iN+1)*g+j+1
+                    # polar cap triangles pointing towards the pole
+                    mesh.append((iN,j1,iN+1,j2,iN+1,j3))
+                    mesh.append((iS,j1,iS-1,j2,iS-1,j3))
+                    # polar cap triangles point towards the equator
+                    if j < iN:
+                        mesh.append((iN,j1,iN,j2+1,iN+1,j3))
+                        mesh.append((iS,j1,iS,j2+1,iS-1,j3))
+                    # triangles filling in the rectangular holes in the polar caps
+                    if j == 1:
+                        # j1 = iN*g+1, j2 = (iN+1)*g+1, j3 = (iN+1)*g+2
+                        mesh.append((iN,j1,iN,j1-1,iN+1,j2-1))
+                        mesh.append((iS,j1,iS,j1-1,iS-1,j2-1))
+                        mesh.append((iN,j1,iN+1,j2,iN+1,j2-1))
+                        mesh.append((iS,j1,iS-1,j2,iS-1,j2-1))
+        # equatorial belt
+        for i in range(self.nsides,3*self.nsides):
+            for j in range(1,4*self.nsides+1):
+                dj = 1-(i+self.nsides)%2;
+                mesh.append((i,j,i,j+1,i+1,j+dj))
+                mesh.append((i,j+1,i+1,j+dj,i+1,j+dj+1))
+        return mesh
+    """
     Run self-consitency checks
     """
     def selfTest(self):
