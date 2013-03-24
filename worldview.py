@@ -1,5 +1,4 @@
 import world.heightfield
-import world.healpix
 import world.projection
 
 hf = world.heightfield.Heightfield('world/data/poodle.20.hf',20)
