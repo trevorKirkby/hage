@@ -19,8 +19,24 @@ class HEALPixMap:
         if nsides < 1:
             raise Error('Invalid nsides < 1 in HEALPixMap')
         self.nsides = nsides
+        # Total number of pixels in the map
         self.npixels = 12*nsides*nsides
+        # Number of pixels in each polar cap that have special geometry
         self.ncap = 2*nsides*(nsides-1)
+        # Number of pixels equally spaced in azimuth for each ring.
+        # Note that (i,j) are both indexed starting from 1, following HEALPix conventions.
+        self.nring = 4*nsides-1
+        self.nphi = [ 0 ]
+        self.nphisum = [ 0 ]
+        for i in range(1,self.nring+1):
+            if i < self.nsides:
+                n = 4*i
+            elif i <= 3*nsides:
+                n = 4*self.nsides
+            else:
+                n = 4*(4*self.nsides-i)
+            self.nphisum.append(self.nphisum[-1]+self.nphi[-1])
+            self.nphi.append(n)
     """
     Tests if the specified pixel index is valid
     """
@@ -29,7 +45,7 @@ class HEALPixMap:
     """
     Returns the (i,j,z,phi) tuple for the specified pixel center
     """
-    def getPixel(self,pixel):
+    def getCoordsForPixel(self,pixel):
         if not self.isValidPixel(pixel):
             raise Error('Invalid pixel index %d in getLatLon' % pixel)
         if pixel < self.ncap:
@@ -56,4 +72,18 @@ class HEALPixMap:
             j = 4*i+1-(ph-2*i*(i-1))
             z = -1+i*i/(3.0*self.nsides*self.nsides)
             phi = math.pi/(2*i)*(j-0.5)
+            i = 4*self.nsides - i
         return (i,j,z,phi)
+    """
+    Returns the pixel index for the specified ring and azimuth indices (i,j)
+    """
+    def getPixelForIJ(self,i,j):
+        return self.nphisum[i] + (j-1)%self.nphi[i]
+    """
+    Run self-consitency checks
+    """
+    def selfTest(self):
+        for pixel in range(self.npixels):
+            (i,j,z,phi) = self.getCoordsForPixel(pixel)
+            pixel2 = self.getPixelForIJ(i,j)
+            assert(pixel == pixel2)
