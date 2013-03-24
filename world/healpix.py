@@ -83,7 +83,7 @@ class HEALPixMap:
             raise Error('Invalid ring index %d in getPixelForIJ' % i)
         return self.nphisum[i] + (j-1)%self.nphi[i]
     """
-    Returns a triangular mesh...
+    Returns a triangular mesh that covers the entire sphere
     """
     def getMesh(self):
         mesh = [ ]

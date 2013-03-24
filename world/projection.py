@@ -30,7 +30,7 @@ class Projector:
         return (math.atan2(dy,dx),dz)
     """
     Performs the inverse projection where dphi is in radians and returns the
-    absolute phi in the range (-pi,2pi) and z in the range (-1,+1)
+    absolute phi in the range (-pi,+pi) and z in the range (-1,+1)
     """
     def unproject(self,dphi,dz):
         st = math.sqrt(1-dz*dz)
@@ -40,3 +40,28 @@ class Projector:
         y = self.cp0*sp*st + self.sp0ct0*cp*st - self.sp0z0*dz
         z = self.ct0*dz + self.z0*cp*st
         return (math.atan2(y,x),z)
+
+class ProjectedMap:
+    def __init__(self,left,top,width,height):
+        self.left = left
+        self.top = top
+        self.width = width
+        self.height = height
+        self.xcenter = left + 0.5*width
+        self.ycenter = top + 0.5*height
+        self.setAbsoluteCenter(0,0)
+        self.setScale(10)
+    def setAbsoluteCenter(self,phi0,z0):
+        self.phi0 = phi0
+        self.z0 = z0
+        self.projector = Projector(phi0,z0)
+    def setAbsoluteScale(self,scale):
+        self.scale = scale
+        self.scaleFactor = scale*self.height
+    def project(self,phi,z):
+        (dphi,dz) = self.projector.project(phi,z)
+        x = self.xcenter + self.scaleFactor*dphi
+        y = self.ycenter - self.scaleFactor*dz
+        return (x,y)
+    def render(self,hf):
+        
