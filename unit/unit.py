@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
-import pygame
+import pygame, unitImage
+pygame.init()
 
 collisionObjects = pygame.sprite.RenderUpdates()
 
@@ -10,13 +11,12 @@ class Unit(pygame.sprite.Sprite):
 		#all images required are as follows: imageStationaryList, imageSideMoveList, imageUpMoveList, imageDownMoveList, imageSideAttackList, imageUpAttackList, imageDownAttackList, imageMiningPitList, imageMiningCaveList, imageMiningQuarryList, imageChoppingList, imageSawingList, imageHuntingList, imageGatheringList, imageFishingList, imageWellList, imageJugList, imageFarmingList, imageCarryingList, buildingStageOneList, buildingStageTwoList, buildingStageThreeList, and imageDead. These are categorized into mining, combat,movement, and building lists. Move is imagesList[0],stationary MovementLists[0], animationStart is StationaryList[0](goes 0-3 for stationary animations)
 		self.reinit(pos,CanBuildBool,CanMineBool,RangedWeaponBool,PersonalityBool,LearnBool,Ravenbool,AttackRadius,Attack,Health,Speed,Stamina,getStuck,UnitBonuses,ResearchList,imageLibrary,WaterBool,name,elevation)
 	def reinit(self,pos,CanBuildBool,CanMineBool,RangedWeaponBool,PersonalityBool,LearnBool,Ravenbool,AttackRadius,Attack,Health,Speed,Stamina,getStuck,UnitBonuses,ResearchList,imageLibrary,WaterBool,name,elevation):
-		self.imageLists = imageLibrary
-		self.image = pygame.image.load(((self.imageLists[0])[0])[0]).convert_alpha()
+		self.count = 0
+		self.image = unitImage.load("stationary",self.count)
 		self.rect = self.image.get_rect()
 		self.rect.center = pos
 		self.builder = CanBuildBool
 		self.buildings = None
-		self.animationCount = 0
 		self.currentElevation = elevation
 		if self.builder == True:
 			self.buildings = ["town center","mining camp 1","lumber stockpile","hunting post","fishing dock","stockpile","grainary","water store","home","watchpost"]
@@ -70,54 +70,17 @@ class Unit(pygame.sprite.Sprite):
 		self.report = RavenBool
 		self.attackradius = AttackRadius
 		self.wheels = getStuck
+			if self.wheels == True:
+				self.stuck == False
 		if UnitBonuses[0] == True:
 			self.unitBonus = UnitBonuses
 		else:
 			pass
-		for item in ResearchList:
-			if item[0] == True:
-				for  thing in item[1]:
-					if thing == name:
-						if item[2][0] == True:
-							self.health = self.health + item[3][0]
-						if item[2][1] == True:
-							self.attack = self.attack + item[3][1]
-						if item[2][2] == True:
-							self.speed = self.speed + item[3][2]
-						if item[2][3] == True:
-							self.stamina = self.stamina + item[3][3]
-						if item[2][4] == True:
-							self.navigation = self.navigation + item[3][4]
-						if item[2][5] == True:
-							self.accuracy = self.accuracy + item[3][5]
-						if item[2][6] == True:
-							self.loyalty = self.loyalty + item[3][6]
-						if item[4][0] == True:
-							self.unitBonus.append(item[4][1])
-						if item[5][0] == True:
-							self.buildings.append(item[5][1])
-						if item[6][0] == True:
-							self.canMine.append(item[6][1])
-						
 		self.ship = waterBool
-
-	def moveAnimate(self,self.animationNumber,dx,dy)
-		if dx > dy:
-			if dx > 0:
-				self.image = pygame.image.load(((self.imageLists[0])[1])[animationNumber]).convert_alpha()#right
-			elif dx < 0:
-				self.image = pygame.image.load(((self.imageLists[0])[1])[animationNumber]).convert_alpha()#left
-		else:
-			if dy > 0:
-				self.image = pygame.image.load(((self.imageLists[0])[2])[animationNumber]).convert_alpha()
-			elif dy < 0:
-				self.image = pygame.image.load(((self.imageLists[0])[3])[animationNumber]).convert_alpha()
-				
 
 	def move(self,dx,dy,elevation,weather,footing,temperature):
 		#footing refers to the difference between thorny undergrowth and paved road
 		screen.fill((150,150,200),self.rect)
-		self.moveAnimate(self.animationCount,dx,dy)
 		collisions = pygame.sprite.spritecollide(self, everything, False)
 		for other in collisions:
 			if other != self:
@@ -131,6 +94,11 @@ class Unit(pygame.sprite.Sprite):
 			dx = dx + ((self.currentElevation - elevation)-1)
 			dy = dy + ((self.currentElevation - elevation)-1)
 		self.currentElevation = elevation
+		if weather == "rainy":
+			if self.wheels == True:
+				if random.choice(range(1000)) == 1:
+					footing = footing + 50
+					self.stuck == True
 		if weather == "stormy":
 			#weather can be rainy, stormy, snowing, ocean storm,blizzard, sunny, cloudy, hail, foggy, and hurricane.
 			footing = footing + 3
@@ -167,11 +135,14 @@ class Unit(pygame.sprite.Sprite):
 		if footing > 0:
 			#0 means 0 resistance of path
 			dx = dx - int(footing/self.navigation)
+			dy = dy - int(footing/self.navigation)
+			self.stamina = self.stamina - float(0.25)
 		self.stamina = self.stamina - float(0.5)
 		self.rect.move_ip(dx,dy)
 """
 	def LOS(self,coordinates,elevation,weather,time):
 		if self.ravenOwner == True:
+			pygame.display.update(self.losRect)
 		self.vulnerable = pygame.rect.inflate(self.rect,250,250)
 		self.vulnerable.move_ip(coordinates)
 		#notes: any unit los(which increases with elevation and light, and decreases with fog and dark) starts out uniform. Only raven owners report their los to you, so everything else is shrouded in fog of war. And ravens are quite expensive, require some basic research, and aren't 100 percent loyal. So be careful. To make up for lack of ravens, rumors often print through f4om the sidelines. Most of it is useless, motivating you to ignore it, but heeding it always tells you useful stuff sometimes. You will always hear about large enemy forces, however, if you have spies, which make the flow of rumor information much more useful, and will inform you on your map of big events. Also emphasizing strategy, time has a habit of slowing down whenever something important is going on, allowing orders to be relayed faster. However this time slow can sometimes just be random, so if your not aware of what is happening, you may not be about to be attacked. Because if you spend some resources on research and bribes, and kill a few spy units(who can't own ravens), you can mount a stealth attack, especially if you do it soon after raising your army, or by raising the army gradually, and marching with no forewarnment. Similarly, assassin units can sneak in if the gaurds aren't smart and the assassins are, so it's a good idea to always gaurd your leaders. However, seeing as assassination can be a suicide task, suitable stealth military units are very costly and require a lot of loyalty to accept dangerous work. All units are like that. They need to be brave, loyal, and less independant to accept such tasks, but independance is a must for such tasks.
