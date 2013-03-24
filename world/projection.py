@@ -64,4 +64,4 @@ class ProjectedMap:
         y = self.ycenter - self.scaleFactor*dz
         return (x,y)
     def render(self,hf):
-        
+        pass

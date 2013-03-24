@@ -10,10 +10,8 @@ print hf.pixmap.getCoordsForPixel(19000)
 hf.pixmap.selfTest()
 
 pm = world.healpix.HEALPixMap(2)
-mesh = pm.getMesh()
-for tri in mesh:
+for tri in pm.getMesh():
     print tri
-print 'mesh size =',len(mesh)
 
 proj = world.projection.Projector(1,0.1)
 (dphi,dz) = proj.project(-1.3,0.2)
