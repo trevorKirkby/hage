@@ -19,7 +19,7 @@ class Heightfield:
     def __init__(self,filename,nside):
         if nside < 1:
             raise Error('Invalid nside < 1 for heightfield.')
-        self.npixels = 4*nside*nside
+        self.npixels = 12*nside*nside
         # create an empty array to hold the heightfield data as unsigned shorts
         self.data = array.array('H')
         try:
