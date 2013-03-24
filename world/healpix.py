@@ -25,10 +25,10 @@ class HEALPixMap:
         self.ncap = 2*nsides*(nsides-1)
         # Number of pixels equally spaced in azimuth for each ring.
         # Note that (i,j) are both indexed starting from 1, following HEALPix conventions.
-        self.nring = 4*nsides-1
+        self.nrings = 4*nsides-1
         self.nphi = [ 0 ]
         self.nphisum = [ 0 ]
-        for i in range(1,self.nring+1):
+        for i in range(1,self.nrings+1):
             if i < self.nsides:
                 n = 4*i
             elif i <= 3*nsides:
@@ -75,9 +75,12 @@ class HEALPixMap:
             i = 4*self.nsides - i
         return (i,j,z,phi)
     """
-    Returns the pixel index for the specified ring and azimuth indices (i,j)
+    Returns the pixel index for the specified ring and azimuth indices (i,j).
+    Raises an Error for an invalid I but J is wrapped around so is always valid.
     """
     def getPixelForIJ(self,i,j):
+        if i < 1 or i > self.nrings:
+            raise Error('Invalid ring index %d in getPixelForIJ' % i)
         return self.nphisum[i] + (j-1)%self.nphi[i]
     """
     Run self-consitency checks
