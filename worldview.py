@@ -1,5 +1,6 @@
 import world.heightfield
 import world.healpix
+import world.projection
 
 hf = world.heightfield.Heightfield('world/data/poodle.40.hf',40)
 print hf.getHeight(100)
@@ -13,3 +14,7 @@ mesh = pm.getMesh()
 for tri in mesh:
     print tri
 print 'mesh size =',len(mesh)
+
+proj = world.projection.Projector(1,0.1)
+(dphi,dz) = proj.project(-1.3,0.2)
+print (dphi,dz),proj.unproject(dphi,dz)
