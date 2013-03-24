@@ -16,18 +16,21 @@ class Heightfield:
     Reads a height field from a binary file using 16-bit signed integers for each pixel.
     Raises an Error in case of any problems.
     """
-    def __init__(self,filename,npixels):
+    def __init__(self,filename,nside):
+        if nside < 1:
+            raise Error('Invalid nside < 1 for heightfield.')
+        self.npixels = 4*nside*nside
         # create an empty array to hold the heightfield data as unsigned shorts
         self.data = array.array('H')
         try:
             # check that the file has the expected size
-            if os.path.getsize(filename) != 2*npixels:
+            if os.path.getsize(filename) != 2*self.npixels:
                 raise Error('Heightfield file "%s" has wrong size %d (expected %d)' %
-                    (filename,os.path.getsize(filename),2*npixels))
+                    (filename,os.path.getsize(filename),2*self.npixels))
             # open the file in binary read-only mode
             with open(filename,"rb") as f:
                 try:
-                    self.data.fromfile(f,npixels)
+                    self.data.fromfile(f,self.npixels)
                 except EOFError:
                     raise Error('Unexpected EOF in heightfield file "%s"' % filename)
         except (IOError,OSError):
@@ -42,8 +45,10 @@ class Heightfield:
     Returns the height relative to sea level or raises an Error for an invalid pixel.
     """
     def getHeight(pixel):
+        if pixel < 0 or pixel >= self.npixels:
+            raise Error('Invalid pixel index %d in Heightfield.getHeight.' % pixel)
         return self.conversion*self.data[pixel]
 
 if __name__ == "__main__":
-    h = Heightfield("world/data/poodle.hf",4800)
+    h = Heightfield("world/data/poodle.40.hf",40)
     print "ok"
