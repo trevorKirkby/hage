@@ -2,6 +2,8 @@ import sys
 import os.path
 import array
 
+import healpix
+
 class Error(Exception):
     def __init__(self,msg):
         self.msg = msg
@@ -17,20 +19,22 @@ class Heightfield:
     Raises an Error in case of any problems.
     """
     def __init__(self,filename,nside):
-        if nside < 1:
+        try:
+            self.pixmap = healpix.HEALPixMap(nside)
+            npixels = self.pixmap.npixels
+        except healpix.Error:
             raise Error('Invalid nside < 1 for heightfield.')
-        self.npixels = 12*nside*nside
         # create an empty array to hold the heightfield data as unsigned shorts
         self.data = array.array('H')
         try:
             # check that the file has the expected size
-            if os.path.getsize(filename) != 2*self.npixels:
+            if os.path.getsize(filename) != 2*npixels:
                 raise Error('Heightfield file "%s" has wrong size %d (expected %d)' %
-                    (filename,os.path.getsize(filename),2*self.npixels))
+                    (filename,os.path.getsize(filename),2*npixels))
             # open the file in binary read-only mode
             with open(filename,"rb") as f:
                 try:
-                    self.data.fromfile(f,self.npixels)
+                    self.data.fromfile(f,npixels)
                 except EOFError:
                     raise Error('Unexpected EOF in heightfield file "%s"' % filename)
         except (IOError,OSError):
@@ -44,11 +48,7 @@ class Heightfield:
     """
     Returns the height relative to sea level or raises an Error for an invalid pixel.
     """
-    def getHeight(pixel):
-        if pixel < 0 or pixel >= self.npixels:
+    def getHeight(self,pixel):
+        if not self.pixmap.isValidPixel(pixel):
             raise Error('Invalid pixel index %d in Heightfield.getHeight.' % pixel)
         return self.conversion*self.data[pixel]
-
-if __name__ == "__main__":
-    h = Heightfield("world/data/poodle.40.hf",40)
-    print "ok"

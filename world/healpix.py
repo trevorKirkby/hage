@@ -18,3 +18,5 @@ class HEALPixMap:
             raise Error('Invalid nsides < 1 in HEALPixMap')
         self.nsides = nsides
         self.npixels = 12*nsides*nsides
+    def isValidPixel(self,pixel):
+        return pixel >= 0 and pixel < self.npixels
