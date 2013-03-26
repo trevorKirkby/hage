@@ -1,0 +1,13 @@
+	def moveAnimate(self,self.animationNumber,dx,dy)
+		if dx > dy:
+			if dx > 0:
+				self.image = pygame.image.load(((self.imageLists[0])[1])[animationNumber]).convert_alpha()#right
+			elif dx < 0:
+				self.image = pygame.image.load(((self.imageLists[0])[1])[animationNumber]).convert_alpha()#left
+		else:
+			if dy > 0:
+				self.image = pygame.image.load(((self.imageLists[0])[2])[animationNumber]).convert_alpha()
+			elif dy < 0:
+				self.image = pygame.image.load(((self.imageLists[0])[3])[animationNumber]).convert_alpha()
+	
+	self.moveAnimate(self.animationCount,dx,dy)
