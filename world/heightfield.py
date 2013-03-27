@@ -18,7 +18,7 @@ class Heightfield:
     Reads a height field from a binary file using 16-bit signed integers for each pixel.
     Raises an Error in case of any problems.
     """
-    def __init__(self,filename,nside):
+    def __init__(self,filename,nside,landFraction = 0.33):
         try:
             self.pixmap = healpix.HEALPixMap(nside)
             npixels = self.pixmap.npixels
@@ -40,15 +40,38 @@ class Heightfield:
         except (IOError,OSError):
             raise Error('Unable to read heightfield file "%s"' % filename)
         # data in file is in network byte order (big endian) so swap here if necessary
-        if sys.byteorder == "little":
+        if sys.byteorder != "little":
+            print 'swapping byte order'
             self.data.byteswap()
-        # precompute the conversion from internal (16-bit unsigned) to external (normalized
-        # floating point), i.e., the float constant 2^-16
-        self.conversion = float(1.52587890625e-5)
+        self.setLandFraction(landFraction)
+    """
+    Determines the sea level that gives a specified land fraction.
+    """
+    def setLandFraction(self,landFraction):
+        # fill a histogram of height values
+        nbins = 256
+        scale = (1<<16)/nbins
+        histogram = [0]*nbins
+        for height in self.data:
+            bin = height/scale
+            histogram[bin] += 1
+        # look for the approximate percentile
+        target = self.pixmap.npixels*(1-landFraction)
+        for bin in range(nbins):
+            # calculate cummulative contents
+            if bin > 0:
+                histogram[bin] += histogram[bin-1]
+            # use linear interpolation within the bin that crosses the threshold
+            if histogram[bin] >= target:
+                t = (target - histogram[bin-1])/(histogram[bin] - histogram[bin-1])
+                self.seaLevel = (bin + t)*scale
+                self.conversion = 1/(65535.0-self.seaLevel)
+                print 'sea level at',self.seaLevel
+                break
     """
     Returns the height relative to sea level or raises an Error for an invalid pixel.
     """
     def getHeight(self,pixel):
         if not self.pixmap.isValidPixel(pixel):
             raise Error('Invalid pixel index %d in Heightfield.getHeight.' % pixel)
-        return self.conversion*self.data[pixel]
+        return self.conversion*(self.data[pixel]-self.seaLevel)
