@@ -67,6 +67,13 @@ class ProjectedMap:
     def contains(self,x,y):
         return x >= self.left and x < self.right and y >= self.top and y < self.bottom
     def render(self,hf):
+        # precompute the positions of all vertices
+        cache = [ ]
+        for pixel in range(hf.pixmap.npixels):
+            (i,j,z,phi) = hf.pixmap.getCoordsForPixel(pixel)
+            (x,y) = self.project(phi,z)
+            cache.append((x,y,hf.getHeight(pixel),self.contains(x,y)))
+        # loop over mesh triangles
         for (i1,j1,i2,j2,i3,j3) in hf.pixmap.getMesh():
             p1 = hf.pixmap.getPixelForIJ(i1,j1)
             p2 = hf.pixmap.getPixelForIJ(i2,j2)
@@ -74,12 +81,9 @@ class ProjectedMap:
             (i,j,z1,phi1) = hf.pixmap.getCoordsForPixel(p1)
             (i,j,z2,phi2) = hf.pixmap.getCoordsForPixel(p2)
             (i,j,z3,phi3) = hf.pixmap.getCoordsForPixel(p3)
-            (x1,y1) = self.project(phi1,z1)
-            (x2,y2) = self.project(phi2,z2)
-            (x3,y3) = self.project(phi3,z3)
-            if self.contains(x1,y1) or self.contains(x2,y2) or self.contains(x3,y3):
-                h1 = hf.getHeight(p1)
-                h2 = hf.getHeight(p2)
-                h3 = hf.getHeight(p3)
+            (x1,y1,h1,in1) = cache[p1]
+            (x2,y2,h2,in2) = cache[p2]
+            (x3,y3,h3,in3) = cache[p3]
+            if in1 or in2 or in3:
                 havg = (h1+h2+h3)/3.0
                 yield (((x1,y1),(x2,y2),(x3,y3)),havg)

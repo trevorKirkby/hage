@@ -1,7 +1,12 @@
-import pygame, time, world.heightfield, world.projection
+import pygame
+import time
+import math
+
+import world.heightfield
+import world.projection
 
 pygame.init()
-hf = world.heightfield.Heightfield('world/data/poodle.40.hf',40)
+hf = world.heightfield.Heightfield('world/data/poodle.80.hf',80)
 
 def setMode(text):
 	if text == "w":
@@ -41,11 +46,18 @@ screen = setMode(raw_input("start in full screen or window? (f/w): "))
 blegh = pygame.Surface(screen.get_size())
 blegh.fill((0,100,0))
 mp = world.projection.ProjectedMap(0,0,screen.get_width(),screen.get_height())
-mp.setAbsoluteCenter(0,0)
-mp.setAbsoluteScale(5)
-for points in mp.render(hf):
-	gray = int(255*points[1])
-	pygame.draw.polygon(blegh,(gray,gray,gray),points[0], 5)
+mp.setAbsoluteCenter(3.5,0.7)
+mp.setAbsoluteScale(3)
+for (points,height) in mp.render(hf):
+	if height < 0:
+	    level = 1-min(-height,1)
+	    blue = int(255*level)
+	    gray = int(64*level)
+	    color = (gray,gray,blue)
+	else:
+	    green = 255*math.sqrt(height)
+	    color = (64,green,32)
+	pygame.draw.polygon(blegh,color,points,0)
 screen.blit(blegh,(0,0))
 pygame.display.update()
 while True:
