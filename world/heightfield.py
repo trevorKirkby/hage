@@ -18,7 +18,7 @@ class Heightfield:
     Reads a height field from a binary file using 16-bit signed integers for each pixel.
     Raises an Error in case of any problems.
     """
-    def __init__(self,filename,nside,landFraction = 0.33):
+    def __init__(self,filename,nside,landFraction = 0.5):
         try:
             self.pixmap = healpix.HEALPixMap(nside)
             npixels = self.pixmap.npixels
@@ -65,7 +65,7 @@ class Heightfield:
             if histogram[bin] >= target:
                 t = (target - histogram[bin-1])/(histogram[bin] - histogram[bin-1])
                 self.seaLevel = (bin + t)*scale
-                self.conversion = 1/(65535.0-self.seaLevel)
+                self.conversion = 1.0/(65535.0-self.seaLevel)
                 print 'sea level at',self.seaLevel
                 break
     """
