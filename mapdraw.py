@@ -1,7 +1,12 @@
-import pygame, time, world.heightfield, world.projection
+import pygame
+import time
+import math
+
+import world.heightfield
+import world.projection
 
 pygame.init()
-hf = world.heightfield.Heightfield('world/data/poodle.40.hf',40)
+hf = world.heightfield.Heightfield('world/data/poodle.80.hf',80)
 
 def setMode(text):
 	if text == "w":
@@ -45,10 +50,13 @@ mp.setAbsoluteCenter(3.5,0.7)
 mp.setAbsoluteScale(3)
 for (points,height) in mp.render(hf):
 	if height < 0:
-	    color = (0,0,128)
+	    level = 1-min(-height,1)
+	    blue = int(255*level)
+	    gray = int(64*level)
+	    color = (gray,gray,blue)
 	else:
-	    gray = int(255*height)
-	    color = (gray,gray,gray)
+	    green = 255*math.sqrt(height)
+	    color = (64,green,32)
 	pygame.draw.polygon(blegh,color,points,0)
 screen.blit(blegh,(0,0))
 pygame.display.update()
